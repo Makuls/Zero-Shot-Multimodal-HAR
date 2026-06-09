@@ -1,19 +1,25 @@
 # ⌚ The Limits of Edge-AI Compression: Zero-Shot Cross-Dataset Generalization in Multimodal HAR
 
-**Author:** Makul Swami | **Institution:** IIT Patna (M.Tech in AI & Data Science)
+**Author:** Makul Swami | **Institution:** IIT Patna (M.Tech in AI)
 
 ## 📌 Abstract
 This repository contains the official codebase for an ablation study investigating the architectural limits of deploying Multimodal Human Activity Recognition (HAR) models to hyper-compressed edge devices (e.g., smartwatches). 
 
 The research establishes a foundational 27.4M-parameter Hierarchical Multimodal Teacher (Vision + IMU) and systematically evaluates the boundaries of compressing this intelligence into a 2.3M-parameter Edge Student. Through rigorous zero-shot cross-dataset evaluation (training on UTD-MHAD, testing on MMAct), this project empirically proves that while heavy foundational models can survive severe domain shifts, edge-optimized models suffer from catastrophic representational collapse regardless of the compression strategy utilized.
 
+## 💡 Key Contributions & Novelty
+While standard HAR literature relies heavily on intra-dataset evaluation, this project isolates the **Zero-Shot Cross-Dataset** barrier. The novelties of this research include:
+1. **Empirical Benchmarking:** Establishing a 26.38% unadapted zero-shot baseline for 27-class multimodal HAR using a custom Hierarchical Transformer.
+2. **Comprehensive Edge Ablation:** Systematically proving that highly compressed edge models (2.3M params) mathematically lack the representational capacity to survive domain shifts, leading to catastrophic mode collapse.
+3. **Evaluation of Compression Limits:** Demonstrating that advanced techniques like Adversarial UDA and Intermediate Feature Matching fail to rescue edge models under strict zero-shot conditions, proving a hard hardware-capacity limit.
+
 ## 🏗️ Model Architecture
-* **Master Teacher (~27.4M Parameters):** * *Sensor Backbone:* Custom Hierarchical Masked Autoencoder (Transformer) pre-trained via Self-Supervised Learning (SSL) to reconstruct masked 6-axis IMU data.
-  * *Vision Backbone:* ResNet50 (stripped of classification head) for spatial/posture embedding.
-  * *Fusion:* Dynamic Late-Fusion MLP.
+* **Master Teacher (~27.4M Parameters):** * **Sensor Backbone:** Custom Hierarchical Masked Autoencoder (Transformer) pre-trained via Self-Supervised Learning (SSL) to reconstruct masked 6-axis IMU data.
+  * **Vision Backbone:** ResNet50 (stripped of classification head) for spatial/posture embedding.
+  * **Fusion:** Dynamic Late-Fusion MLP.
 * **Edge Student (~2.3M Parameters):**
-  * *Sensor Backbone:* 1D-CNN.
-  * *Vision Backbone:* MobileNetV2.
+  * **Sensor Backbone:** 1D-CNN.
+  * **Vision Backbone:** MobileNetV2.
 
 ## 🔬 Experimental Phases & Key Discoveries
 
@@ -24,6 +30,14 @@ The heavy Master Teacher was tested under strict zero-shot conditions on the uns
 ### Phase 2: Standard Knowledge Distillation (Failure)
 Compressing the Teacher into the Student using standard logits distillation.
 * **Result:** **Mode Collapse (Class 19).** The low-capacity student memorized the source domain's background wall. Upon facing domain shift, it suffered catastrophic representational failure.
+
+### Visualizing the Mode Collapse
+*The contrast between the Teacher's feature distribution and the Edge Student's catastrophic failure (Mode Collapse to Class 19) when exposed to an unseen background.*
+
+<p align="center">
+  <img src="confusion_matrix.png" alt="Teacher Heatmap" width="45%">
+  <img src="domain_shift_student_heatmap.png" alt="Student Heatmap" width="45%">
+</p>
 
 ### Phase 3: Adversarial Unsupervised Domain Adaptation / UDA (Failure)
 Implementing a Gradient Reversal Layer (GRL) to force the Student to unlearn domain-specific features.
@@ -40,18 +54,10 @@ Applying aggressive Random Erasing, Color Jitter, and IMU Axis Permutation to fo
 ## 📊 Conclusion
 This research proves that Zero-Shot Cross-Dataset Generalization is currently unfeasible for hyper-compressed multimodal edge models. Deploying HAR algorithms to wearable devices strictly requires Target-Domain Fine-Tuning (Supervised Few-Shot Learning) on the specific deployment hardware.
 
-## 📂 Repository Structure
-```text
-HAR-Edge-Compression/
-├── data/                   # (Ignored) Raw UTD-MHAD and MMAct datasets
-├── saved_models/           # (Ignored) .pth weights for Teacher and Student
-├── src/
-│   ├── datasets/           # Dataloaders, Vision/IMU Scramblers, SSL masking
-│   ├── models/             # Transformer, ResNet, MobileNet, CNN definitions
-│   └── utils/              # Plotting scripts, accuracy calculators
-├── train_multimodal_distillation.py
-├── train_uda_distillation.py
-├── train_feature_distillation.py
-├── evaluate_ablation_student.py
-├── calculate_teacher_accuracy.py
-└── README.md
+## ⚙️ Installation & Data Preparation
+
+**1. Environment Setup:**
+```bash
+git clone [https://github.com/Makuls/Zero-Shot-Multimodal-HAR.git](https://github.com/Makuls/Zero-Shot-Multimodal-HAR.git)
+cd Zero-Shot-Multimodal-HAR
+pip install -r requirements.txt
