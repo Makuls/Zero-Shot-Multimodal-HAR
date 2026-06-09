@@ -1,0 +1,19 @@
+# Datasets
+data/
+*.mp4
+*.avi
+*.mat
+*.csv
+
+# Model Weights
+saved_models/
+*.pth
+*.pt
+
+# Python Caches
+__pycache__/
+*.pyc
+env/
+venv/
+.DS_Store
+EOF
